@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'WebBrowser_Example' do
+  pod 'WebBrowser', :path => '../'
+
+  target 'WebBrowser_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
