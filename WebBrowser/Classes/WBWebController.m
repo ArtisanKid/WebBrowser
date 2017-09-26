@@ -25,8 +25,6 @@ static NSString * const AKWebReadCookiesFromDocumentJS = @"AKWebReadCookiesFromD
 //{UIAlertView:{key, block}}
 @property(nonatomic, strong) NSMutableDictionary<id, NSDictionary<NSString *, dispatch_block_t> *> *alertsM;
 
-@property(nonatomic, strong) NSURL *currentURL;//当前url
-
 @end
 
 @implementation WBWebController
@@ -101,14 +99,15 @@ static BOOL WBWebControllerDebug = NO;
     [userContentController addUserScript:readCookiesScript];
     
     //初始化
-    _webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:self.configuration];
-    _webView.navigationDelegate = self;
-    _webView.UIDelegate = self;
-    _webView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:_webView];
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:self.configuration];
+    webView.navigationDelegate = self;
+    webView.UIDelegate = self;
+    webView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:webView];
+    self.webView = webView;
     
     //autolayout
-    NSDictionary *views = NSDictionaryOfVariableBindings(_webView);
+    NSDictionary *views = NSDictionaryOfVariableBindings(webView);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     

@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithURL:(NSURL *)url;
 @property (nonatomic, strong, readonly) WKWebView *webView;
-
 @property (nonatomic, strong) NSURL *originURL;//原始url
+
 @property (nonatomic, strong) WKWebViewConfiguration *configuration;
 
 @property (nonatomic, copy) NSArray<id<WebBrowserPluginProtocol>> *plugins;

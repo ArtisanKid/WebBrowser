@@ -5,8 +5,8 @@
 //  Created by 李翔宇 on 2017/9/25.
 //
 
-#import <UIKit/UIKit.h>
+#import "WBStableWebController.h"
 
-@interface WBFileController : UIViewController
+@interface WBFileController : WBStableWebController
 
 @end
