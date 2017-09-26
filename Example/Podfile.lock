@@ -1,0 +1,16 @@
+PODS:
+  - WebBrowser (0.1.0)
+
+DEPENDENCIES:
+  - WebBrowser (from `../`)
+
+EXTERNAL SOURCES:
+  WebBrowser:
+    :path: ../
+
+SPEC CHECKSUMS:
+  WebBrowser: b3f991d88086b48cb999c742eaee393a6d3b45b7
+
+PODFILE CHECKSUM: eb421005091fc0207d043ef65c19b031aa88a923
+
+COCOAPODS: 1.1.1
