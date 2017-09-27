@@ -20,13 +20,13 @@
 
 //debug开关
 
-static BOOL WBWebControllerDebug = NO;
+static BOOL WBStableWebControllerDebug = NO;
 + (BOOL)isDebug {
-    return WBWebControllerDebug;
+    return WBStableWebControllerDebug;
 }
 
 + (void)setDebug:(BOOL)debug {
-    WBWebControllerDebug = debug;
+    WBStableWebControllerDebug = debug;
 }
 
 #pragma mark - 生命周期
@@ -80,14 +80,17 @@ static BOOL WBWebControllerDebug = NO;
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
     WebBrowserLog(WBStableWebController.isDebug, self.isDebug, @"");
+    UIApplication.sharedApplication.networkActivityIndicatorVisible = YES;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     WebBrowserLog(WBStableWebController.isDebug, self.isDebug, @"");
+    UIApplication.sharedApplication.networkActivityIndicatorVisible = NO;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     WebBrowserLog(WBStableWebController.isDebug, self.isDebug, @"%@", error);
+    UIApplication.sharedApplication.networkActivityIndicatorVisible = NO;
 }
 
 #pragma mark - Private Method

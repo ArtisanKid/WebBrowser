@@ -106,6 +106,11 @@ static BOOL WBWebControllerDebug = NO;
     [self.view addSubview:webView];
     self.webView = webView;
     
+    //KVO
+    [self.webView addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
+    [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
+    [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
+    
     //autolayout
     NSDictionary *views = NSDictionaryOfVariableBindings(webView);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
@@ -129,7 +134,92 @@ static BOOL WBWebControllerDebug = NO;
     [self storeCookieFromDocument];
 }
 
+#pragma mark - Protocol Method
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if(object != self.webView) {
+        return;
+    }
+    
+    if([keyPath isEqualToString:@"title"]) {
+        self.title = change[NSKeyValueChangeNewKey];
+    } else if([keyPath isEqualToString:@"loading"]) {
+        UIApplication.sharedApplication.networkActivityIndicatorVisible = self.webView.isLoading;
+    } else if([keyPath isEqualToString:@"estimatedProgress"]) {
+        
+    }
+}
+
 #pragma mark - Public Method
+
+- (void)cleanCookieAtURL:(NSURL *)url {
+    NSHTTPCookieStorage *cookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage;
+    NSArray<NSHTTPCookie *> *cookies = [cookieStorage cookiesForURL:url];
+    [cookies enumerateObjectsUsingBlock:^(NSHTTPCookie * _Nonnull cookie, NSUInteger idx, BOOL * _Nonnull stop) {
+        [cookieStorage deleteCookie:cookie];
+    }];
+    
+    if(NSFoundationVersionNumber >= 1499) {//NSFoundationVersionNumber_iOS_11_0
+        WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
+        [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
+            NSSet<NSString *> *types = [NSSet setWithObject:WKWebsiteDataTypeCookies];
+            [dateStore removeDataOfTypes:types forDataRecords:records completionHandler:^{
+                
+            }];
+        }];
+    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_9_0) {
+        WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
+        [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
+            NSSet<NSString *> *types = [NSSet setWithObject:WKWebsiteDataTypeCookies];
+            [dateStore removeDataOfTypes:types forDataRecords:records completionHandler:^{
+                
+            }];
+        }];
+    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_8_0) {
+        NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+        NSString *cookiesFolderPath = [paths.firstObject stringByAppendingString:@"/Cookies"];
+        NSError *error = nil;
+        if(![[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&error]) {
+            WebBrowserLog(WBWebController.isDebug, self.isDebug, @"%@", error);
+        }
+        
+        NSString *webKitFolderPath = [paths.firstObject stringByAppendingString:@"/WebKit"];
+        error = nil;
+        if(![[NSFileManager defaultManager] removeItemAtPath:webKitFolderPath error:&error]) {
+            WebBrowserLog(WBWebController.isDebug, self.isDebug, @"%@", error);
+        }
+    }
+}
+
+- (void)cleanCacheAtURL:(NSURL *)url {
+    if(NSFoundationVersionNumber >= 1499) {//NSFoundationVersionNumber_iOS_11_0
+        WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
+        [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
+            [dateStore removeDataOfTypes:WKWebsiteDataStore.allWebsiteDataTypes forDataRecords:records completionHandler:^{
+                
+            }];
+        }];
+    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_9_0) {
+        WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
+        [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
+            [dateStore removeDataOfTypes:WKWebsiteDataStore.allWebsiteDataTypes forDataRecords:records completionHandler:^{
+                
+            }];
+        }];
+    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_8_0) {
+        NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+        NSString *cookiesFolderPath = [paths.firstObject stringByAppendingString:@"/Caches"];
+        NSError *error = nil;
+        if(![[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&error]) {
+            WebBrowserLog(WBWebController.isDebug, self.isDebug, @"%@", error);
+        }
+        
+        NSString *webKitFolderPath = [paths.firstObject stringByAppendingString:@"/WebKit"];
+        error = nil;
+        if(![[NSFileManager defaultManager] removeItemAtPath:webKitFolderPath error:&error]) {
+            WebBrowserLog(WBWebController.isDebug, self.isDebug, @"%@", error);
+        }
+    }
+}
 
 - (NSArray<id<WebBrowserPluginProtocol>> *)plugins {
     return [self.pluginsM copy];
@@ -279,7 +369,7 @@ static BOOL WBWebControllerDebug = NO;
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
     WebBrowserLog(WBWebController.isDebug, self.isDebug, @"");
     
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    UIApplication.sharedApplication.networkActivityIndicatorVisible = NO;
 }
 
 /*! @abstract Invoked when an error occurs during a committed main frame
@@ -291,7 +381,7 @@ static BOOL WBWebControllerDebug = NO;
 - (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
     WebBrowserLog(WBWebController.isDebug, self.isDebug, @"%@", error);
     
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    UIApplication.sharedApplication.networkActivityIndicatorVisible = NO;
     
     //这些错误的情况下，不显示错误
     

@@ -16,8 +16,14 @@
  Document.cookie:
  https://developer.mozilla.org/en-US/docs/Web/API/document/cookie
  
+ How to get cookies from WKWebView
+ https://stackoverflow.com/questions/28232963/how-to-get-cookies-from-wkwebview/
+ 
  Getting all cookies from WKWebView
  https://stackoverflow.com/questions/33156567/getting-all-cookies-from-wkwebview
+ 
+ How to delete WKWebview cookies
+ https://codedump.io/share/WK3hb7JwqrE1/1/how-to-delete-wkwebview-cookies
  
  iOS WKWebView Tips
  http://atmarkplant.com/ios-wkwebview-tips/
@@ -27,6 +33,10 @@
  */
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ !!!301和302跳转时的Cookie问题还未解决
+ */
 
 @interface WBWebController : UIViewController
 
