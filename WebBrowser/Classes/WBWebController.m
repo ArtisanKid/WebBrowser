@@ -98,21 +98,20 @@ static BOOL WBWebControllerDebug = NO;
                                                           forMainFrameOnly:NO];
     [userContentController addUserScript:readCookiesScript];
     
-    //初始化
-    WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:self.configuration];
-    webView.navigationDelegate = self;
-    webView.UIDelegate = self;
-    webView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:webView];
-    self.webView = webView;
+//    //初始化
+    _webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:self.configuration];
+    _webView.navigationDelegate = self;
+    _webView.UIDelegate = self;
+    [self.view addSubview:_webView];
     
     //KVO
-    [self.webView addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
-    [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
-    [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
+    [_webView addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
+    [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
+    [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
     
     //autolayout
-    NSDictionary *views = NSDictionaryOfVariableBindings(webView);
+    _webView.translatesAutoresizingMaskIntoConstraints = NO;
+    NSDictionary *views = NSDictionaryOfVariableBindings(_webView);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     
@@ -158,7 +157,7 @@ static BOOL WBWebControllerDebug = NO;
         [cookieStorage deleteCookie:cookie];
     }];
     
-    if(NSFoundationVersionNumber >= 1499) {//NSFoundationVersionNumber_iOS_11_0
+    if(@available(iOS 11, *)) {//NSFoundationVersionNumber_iOS_11_0
         WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
         [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
             NSSet<NSString *> *types = [NSSet setWithObject:WKWebsiteDataTypeCookies];
@@ -166,7 +165,7 @@ static BOOL WBWebControllerDebug = NO;
                 
             }];
         }];
-    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_9_0) {
+    } else if(@available(iOS 9, *)) {
         WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
         [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
             NSSet<NSString *> *types = [NSSet setWithObject:WKWebsiteDataTypeCookies];
@@ -174,7 +173,7 @@ static BOOL WBWebControllerDebug = NO;
                 
             }];
         }];
-    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_8_0) {
+    } else if(@available(iOS 8, *)) {
         NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
         NSString *cookiesFolderPath = [paths.firstObject stringByAppendingString:@"/Cookies"];
         NSError *error = nil;
@@ -191,21 +190,21 @@ static BOOL WBWebControllerDebug = NO;
 }
 
 - (void)cleanCacheAtURL:(NSURL *)url {
-    if(NSFoundationVersionNumber >= 1499) {//NSFoundationVersionNumber_iOS_11_0
+    if(@available(iOS 11, *)) {//NSFoundationVersionNumber_iOS_11_0
         WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
         [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
             [dateStore removeDataOfTypes:WKWebsiteDataStore.allWebsiteDataTypes forDataRecords:records completionHandler:^{
                 
             }];
         }];
-    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_9_0) {
+    } else if(@available(iOS 9, *)) {
         WKWebsiteDataStore *dateStore = WKWebsiteDataStore.defaultDataStore;
         [dateStore fetchDataRecordsOfTypes:WKWebsiteDataStore.allWebsiteDataTypes completionHandler:^(NSArray<WKWebsiteDataRecord *> * _Nonnull records) {
             [dateStore removeDataOfTypes:WKWebsiteDataStore.allWebsiteDataTypes forDataRecords:records completionHandler:^{
                 
             }];
         }];
-    } else if(NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_8_0) {
+    } else if(@available(iOS 8, *)) {
         NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
         NSString *cookiesFolderPath = [paths.firstObject stringByAppendingString:@"/Caches"];
         NSError *error = nil;

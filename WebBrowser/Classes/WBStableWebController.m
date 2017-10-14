@@ -48,17 +48,17 @@ static BOOL WBStableWebControllerDebug = NO;
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    UIWebView *webView = [[UIWebView alloc] init];
+    _webView = [[UIWebView alloc] init];
     /**
      UIWebView打开有返回内容的302跳转页面会出现Crash，scalesPageToFit设置为YES的情况下会增加这种Crash的几率
      */
-    webView.scalesPageToFit = YES;
-    webView.delegate = self;
-    [self.view addSubview:webView];
-    self.webView = webView;
+    _webView.scalesPageToFit = YES;
+    _webView.delegate = self;
+    [self.view addSubview:_webView];
     
     //autolayout
-    NSDictionary *views = NSDictionaryOfVariableBindings(webView);
+    _webView.translatesAutoresizingMaskIntoConstraints = NO;
+    NSDictionary *views = NSDictionaryOfVariableBindings(_webView);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     
@@ -103,12 +103,7 @@ static BOOL WBStableWebControllerDebug = NO;
         return;
     }
     
-    //携带cookie，支持Ajax等方式使用
     NSMutableURLRequest *requestM = [[NSMutableURLRequest alloc] initWithURL:url];
-    NSArray *cookies = [NSHTTPCookieStorage.sharedHTTPCookieStorage cookiesForURL:url];
-    NSDictionary *headerFields = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
-    requestM.allHTTPHeaderFields = headerFields;
-    
     //关联referer
     if(self.referer.length) {
         [requestM addValue:self.referer forHTTPHeaderField:@"Referer"];
