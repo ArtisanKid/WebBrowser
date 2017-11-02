@@ -19,7 +19,7 @@
     }];
     
     while(!finish) {
-        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate distantFuture]];
+        [[NSRunLoop currentRunLoop] runUntilDate:NSDate.distantFuture];
     }
     
     return result;

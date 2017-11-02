@@ -651,12 +651,11 @@ static BOOL WBWebControllerDebug = NO;
          这时浏览器将维护两个cookie，分别是a和b
          */
         
-        NSMutableString *cookieStrM = [@"document.cookie='" mutableCopy];
-        [cookie.properties enumerateKeysAndObjectsUsingBlock:^(NSHTTPCookiePropertyKey _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            [cookieStrM appendString:[NSString stringWithFormat:@"%@=%@;", key, obj]];
-        }];
-        [cookieStrM appendString:@"';"];
-        [sourceM appendString:[cookieStrM copy]];
+        [sourceM appendFormat:@"document.cookie='%@=%@;domain=%@;path=%@;expires=%@';",
+         cookie.name, cookie.value,
+         cookie.domain,
+         cookie.path.length ? cookie.path : @"/",
+         cookie.expiresDate ? cookie.expiresDate : NSDate.distantFuture];
     }];
     return [sourceM copy];
 }
