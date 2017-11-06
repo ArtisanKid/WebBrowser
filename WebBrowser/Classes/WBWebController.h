@@ -55,7 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addPlugin:(id<WebBrowserPluginProtocol>)plugin;
 - (void)removePlugin:(id<WebBrowserPluginProtocol>)plugin;
 
-@property(nonatomic, strong) NSString *referer;//用于连接转场跳转的referer，需要添加到HTTP Header
+@property (nonatomic, strong) NSString *referer;//用于连接转场跳转的referer，需要添加到HTTP Header
+
+@property (nonatomic, strong, readonly) NSLayoutConstraint *wb_topLayoutConstraint;
+@property (nonatomic, strong, readonly) NSLayoutConstraint *wb_bottomLayoutConstraint;
 
 @end
 

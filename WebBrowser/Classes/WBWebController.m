@@ -25,6 +25,9 @@ static NSString * const AKWebReadCookiesFromDocumentJS = @"AKWebReadCookiesFromD
 //{UIAlertView:{key, block}}
 @property(nonatomic, strong) NSMutableDictionary<id, NSDictionary<NSString *, dispatch_block_t> *> *alertsM;
 
+@property (nonatomic, strong) NSLayoutConstraint *wb_topLayoutConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *wb_bottomLayoutConstraint;
+
 @end
 
 @implementation WBWebController
@@ -113,7 +116,10 @@ static BOOL WBWebControllerDebug = NO;
     _webView.translatesAutoresizingMaskIntoConstraints = NO;
     NSDictionary *views = NSDictionaryOfVariableBindings(_webView);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    self.wb_topLayoutConstraint = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_webView]" options:NSLayoutFormatAlignmentMask metrics:nil views:views].lastObject;
+    self.wb_bottomLayoutConstraint = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[_webView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views].lastObject;
+    [self.view addConstraint:self.wb_topLayoutConstraint];
+    [self.view addConstraint:self.wb_bottomLayoutConstraint];
     
     //加载页面
     [self loadURL:self.originURL];
